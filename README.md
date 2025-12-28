@@ -23,7 +23,7 @@ FVC384 is a 384-bit hash function designed for fast, reliable file verification.
 
 ## ⚠️ Important Disclaimer
 
-**FVC384 is (hopefully based on what I can tell and tested) production-ready for file integrity verification but NOT for cryptographic security applications.**
+**FVC384 should (based on my knowledge, hobbyist so use at your own risk) be production-ready for file integrity verification but NOT for cryptographic security applications.**
 
 ✅ **Recommended uses:**
 - File checksums and integrity verification
@@ -156,24 +156,25 @@ sudo pacman -S base-devel openssl
 ```bash
 git clone https://github.com/Partakithware/fvc384.git
 cd fvc384
-make
-sudo make install  # Optional: installs to /usr/local/bin
+
+# Compile single-file implementation
+gcc -O3 -march=native -mavx2 fvc384.c -o fvc384 -lssl -lcrypto
+
+# Or without AVX2
+gcc -O3 fvc384.c -o fvc384 -lssl -lcrypto
 ```
 
 ### Compile Options
 
 ```bash
-# Standard build
-make
+# Optimized build (recommended)
+gcc -O3 -march=native -mavx2 fvc384.c -o fvc384 -lssl -lcrypto
 
 # Debug build
-make debug
+gcc -g -O0 fvc384.c -o fvc384 -lssl -lcrypto
 
-# Release with optimizations
-make release
-
-# Without AVX2 (scalar only)
-make NOAVX2=1
+# Portable build (no CPU-specific optimizations)
+gcc -O2 fvc384.c -o fvc384 -lssl -lcrypto
 ```
 
 ---
@@ -201,40 +202,48 @@ time ./fvc384 file.bin
 
 ### API Usage (C)
 
+FVC384 is currently a single-file implementation. To use in your project:
+
 ```c
-#include "fvc384.h"
+// Compile fvc384.c with your project or extract the functions you need
 
 // One-shot hashing
 uint8_t digest[48];
-fvc384_hash(data, data_len, digest);
+FVC384_hash(data, data_len, digest);
 
 // Streaming API
-fvc384_ctx ctx;
-fvc384_init(&ctx, DEFAULT_SALT);
+FVC384_ctx ctx;
+FVC384_init(&ctx, DEFAULT_SALT);
 
-fvc384_update(&ctx, chunk1, len1);
-fvc384_update(&ctx, chunk2, len2);
+FVC384_update(&ctx, chunk1, len1);
+FVC384_update(&ctx, chunk2, len2);
 // ... more updates
 
-fvc384_final(&ctx, digest);
+FVC384_final(&ctx, digest);
 
 // File hashing
 uint8_t digest[48];
-if (fvc384_hash_file("path/to/file", digest) == 0) {
+if (FVC384_hash_file("path/to/file", digest) == 0) {
     // Success - digest contains hash
 }
 ```
+
+Note: All function declarations are in `fvc384.c`. For library usage, consider extracting to separate `.h` and `.c` files.
 
 ### Integration Examples
 
 **Makefile Integration:**
 ```makefile
-verify: program
-	fvc384 program > program.fvc384
+# Add to your project
+fvc384: fvc384.c
+	gcc -O3 -march=native -mavx2 fvc384.c -o fvc384 -lssl -lcrypto
+
+verify: program fvc384
+	./fvc384 program > program.fvc384
 	@echo "Hash saved to program.fvc384"
 
-check: program
-	fvc384 program | diff - program.fvc384
+check: program fvc384
+	./fvc384 program | diff - program.fvc384
 	@echo "Integrity verified!"
 ```
 
@@ -332,16 +341,16 @@ Contributions welcome! Especially:
 
 - **Cryptanalysis**: Find weaknesses, collision attacks, preimage vulnerabilities
 - **Performance**: Optimize SIMD code, add ARM NEON support
+- **Code organization**: Create proper `.h`/`.c` split, build system (Makefile/CMake)
 - **Ports**: Rust, Go, Python implementations
 - **Testing**: More collision tests, fuzzing, differential analysis
 - **Documentation**: Explain algorithm better, add diagrams
 
 ### Security Researchers
 
-**Found a vulnerability?** Please report responsibly:
-- Do so in a PR please, simply add a new read me with relevant info.
+**Found a vulnerability?** Please report responsibly via GitHub issues or discussion.
 
-for significant findings/etc (collision, preimage, practical attack).
+Community cryptanalysis and security research is welcomed and encouraged.
 
 ---
 
@@ -385,13 +394,14 @@ Free for commercial and non-commercial use.
 ```bash
 # Clone and build
 git clone https://github.com/Partakithware/fvc384.git
-cd fvc384 && make
+cd fvc384
+gcc -O3 -march=native -mavx2 fvc384.c -o fvc384 -lssl -lcrypto
 
 # Test on a file
 ./fvc384 /path/to/file
 
-# Run distribution test
-./file_dist.sh
+# Run built-in tests
+./fvc384 test
 
 # Benchmark
 ./fvc384 benchmark /path/to/large/file
