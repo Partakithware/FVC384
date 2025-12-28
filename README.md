@@ -173,6 +173,9 @@ gcc -O3 -march=native -mavx2 fvc384.c -o fvc384 -lssl -lcrypto
 # Debug build
 gcc -g -O0 fvc384.c -o fvc384 -lssl -lcrypto
 
+# What I used during testing
+gcc -O3 -march=native -funroll-loops -fomit-frame-pointer -o fvc324 fvc324.c
+
 # Portable build (no CPU-specific optimizations)
 gcc -O2 fvc384.c -o fvc384 -lssl -lcrypto
 ```
