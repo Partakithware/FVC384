@@ -24,6 +24,7 @@ FVC384 is a 384-bit hash function designed for fast, reliable file verification.
 ## ⚠️ Important Disclaimer
 
 **FVC384 should (based on my knowledge, hobbyist so use at your own risk) be production-ready for file integrity verification but NOT for cryptographic security applications.**
+**This code could still use a lot of work**
 
 ✅ **Recommended uses:**
 - File checksums and integrity verification
