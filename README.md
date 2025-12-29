@@ -197,11 +197,6 @@ gcc -O2 fvc384.c -o fvc384 -lssl -lcrypto
 # Benchmark mode
 ./fvc384 benchmark largefile.bin
 
-# Multiple files
-./fvc384 file1.bin file2.bin file3.bin
-
-# With timing
-time ./fvc384 file.bin
 ```
 
 ### API Usage (C)
