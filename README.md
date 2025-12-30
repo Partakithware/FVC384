@@ -1,4 +1,4 @@
-# FVC384 Hash Function (Edit ignore the below, I wouldn't use, quickly created several flaws, if you just want to use it for learning purposes on how to half succeed then...go ahead, once I went to test WASM version....welp its a no go loud and clear)
+# FVC384 Hash Function (Edit ignore the below, I wouldn't use, quickly created, several flaws, if you just want to use it for learning purposes on how to half succeed then...go ahead, once I went to test WASM version....welp its a no go loud and clear)
 
 **File Verification Content - 384-bit cryptographic hash function**
 
